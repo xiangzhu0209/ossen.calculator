@@ -43,16 +43,34 @@
             }
         }
         
-        h1 { 
-            font-size: 28px; 
-            color: #0f172a; 
-            text-align: center; 
-            border-bottom: 3px solid #e2e8f0; 
-            padding-bottom: 15px; 
-            margin-top: 10px; 
+        /* 標題與紀錄按鈕區塊 */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-top: 10px;
             margin-bottom: 25px;
+        }
+        h1 { 
+            font-size: 26px; 
+            color: #0f172a; 
+            margin: 0;
             font-weight: 900;
         }
+        .btn-open-history {
+            background: #e0e7ff;
+            color: #4338ca;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #c7d2fe;
+        }
+        .btn-open-history:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
         
         .form-group { margin-bottom: 15px; }
         .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
@@ -91,7 +109,6 @@
 
         .highlight-input { border-color: #fca5a5 !important; background-color: #fef2f2 !important; color: #b91c1c !important; }
         
-        /* 鉛條 Checkbox 樣式 */
         .checkbox-container {
             display: flex;
             align-items: center;
@@ -148,7 +165,7 @@
             line-height: 1.8;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             display: none;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         .result-total {
@@ -164,21 +181,97 @@
         .result-details { font-family: monospace; white-space: pre-wrap; color: #cbd5e1; }
         .section-title { color: #3b82f6; font-weight: 800; font-size: 20px; margin-top: 10px; display: inline-block; }
 
-        /* 自訂底部滑出式九宮格數字鍵盤 */
-        .numpad-drawer {
+        /* --- 歷史紀錄彈出視窗 (Modal) --- */
+        .history-overlay {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #cbd5e1;
-            padding: 15px 12px calc(15px + env(safe-area-inset-bottom));
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 1000;
+            top: 0; left: 0; width: 100%; height: 100dvh;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 2000;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            justify-content: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .history-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .history-panel {
+            background: #f1f5f9;
+            width: 100%;
+            height: 85dvh;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 24px 24px 0 0;
+            padding: 25px 20px calc(20px + env(safe-area-inset-bottom));
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        .history-overlay.active .history-panel { transform: translateY(0); }
+        
+        .history-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        .history-header-box h2 { margin: 0; font-size: 22px; color: #1e293b; }
+        .history-actions { display: flex; gap: 10px; }
+        
+        .btn-clear-history { background: #fee2e2; color: #ef4444; border: none; padding: 8px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-close-history { background: #cbd5e1; color: #334155; border: none; padding: 8px 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .history-empty {
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 50px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .history-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .history-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .history-time { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .history-category { font-size: 18px; font-weight: 900; color: #0f172a; }
+        .history-size { font-size: 15px; color: #475569; margin-bottom: 12px; font-weight: bold; }
+        .history-total { font-size: 22px; font-weight: 900; color: #10b981; }
+        
+        .history-details-btn {
+            background: #f1f5f9; border: none; color: #3b82f6; width: 100%;
+            font-size: 15px; font-weight: bold; padding: 10px; border-radius: 10px; cursor: pointer;
+        }
+        .history-details-content {
+            display: none; background: #1e293b; color: #cbd5e1; padding: 15px;
+            border-radius: 12px; margin-top: 10px; font-family: monospace; font-size: 14px;
+            white-space: pre-wrap; line-height: 1.6;
+        }
+
+        /* 虛擬鍵盤 */
+        .numpad-drawer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #cbd5e1;
+            padding: 15px 12px calc(15px + env(safe-area-inset-bottom));
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.15); transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 1000; display: flex; flex-direction: column; gap: 10px;
         }
         .numpad-drawer.active { transform: translateY(0); }
         @media (min-width: 768px) { .numpad-drawer { display: none !important; } }
@@ -192,18 +285,17 @@
         .numpad-btn:active { background: #e2e8f0; transform: translateY(2px); box-shadow: 0 0 0 #94a3b8; }
         .numpad-action { background: #ef4444; color: white; box-shadow: 0 2px 0 #b91c1c; }
         .numpad-action:active { background: #dc2626; box-shadow: 0 0 0 #b91c1c; }
-        
-        .numpad-header { display: flex; justify-content: flex-end; }
-        .btn-hide-numpad {
-            background: #3b82f6; color: white; font-weight: bold; font-size: 16px;
-            border: none; padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 0 #2563eb;
-        }
+        .numpad-header-bar { display: flex; justify-content: flex-end; }
+        .btn-hide-numpad { background: #3b82f6; color: white; font-weight: bold; font-size: 16px; border: none; padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 0 #2563eb; }
     </style>
 </head>
 <body>
 
 <div class="container" id="main-container">
-    <h1>歐昇窗簾計價神器</h1>
+    <div class="header-row">
+        <h1>歐昇窗簾計價神器</h1>
+        <button class="btn-open-history" onclick="openHistory()">📜 紀錄</button>
+    </div>
 
     <div class="form-group">
         <label>產品分類</label>
@@ -286,8 +378,22 @@
     </div>
 </div>
 
+<div class="history-overlay" id="history-modal">
+    <div class="history-panel">
+        <div class="history-header-box">
+            <h2>🕒 最近計價紀錄</h2>
+            <div class="history-actions">
+                <button class="btn-clear-history" onclick="clearHistory()">🗑 清空</button>
+                <button class="btn-close-history" onclick="closeHistory()">關閉</button>
+            </div>
+        </div>
+        <div class="history-list" id="history-list">
+            </div>
+    </div>
+</div>
+
 <div class="numpad-drawer" id="numpad-drawer">
-    <div class="numpad-header">
+    <div class="numpad-header-bar">
         <button class="btn-hide-numpad" onclick="hideNumpad()">完成 ⬇</button>
     </div>
     <div class="numpad-grid">
@@ -308,7 +414,14 @@
 
 <script>
     let activeInput = null;
+    let historyRecords = [];
 
+    window.onload = function() {
+        loadHistory();
+        toggleFields();
+    };
+
+    /* 鍵盤邏輯 */
     document.querySelectorAll('.numpad-target').forEach(input => {
         input.addEventListener('focus', function() {
             activeInput = this;
@@ -357,6 +470,7 @@
         }
     }
 
+    /* 業務邏輯 */
     function toggleFields() {
         const cat = document.getElementById('category').value;
         const isFabric = (cat === 'five' || cat === 'nine' || cat === 'fixed');
@@ -389,6 +503,9 @@
         hideNumpad();
 
         const cat = document.getElementById('category').value;
+        const catSelect = document.getElementById('category');
+        const catName = catSelect.options[catSelect.selectedIndex].text;
+
         const w_input = parseFloat(document.getElementById('width').value) || 0;
         const unit_w = document.getElementById('unit-w').value;
         const h_input = parseFloat(document.getElementById('height').value) || 0;
@@ -500,11 +617,90 @@
         resCard.style.display = 'block';
         document.getElementById('result-total').innerText = `NT$ ${fmt(total)}`;
         document.getElementById('result-details').innerHTML = processText;
+
+        saveHistory(catName, w_input, unit_w, h_input, unit_h, total, processText);
         
-        setTimeout(() => resCard.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+        setTimeout(() => resCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
 
-    toggleFields();
+    /* --- 歷史紀錄面板邏輯 --- */
+    function openHistory() {
+        hideNumpad();
+        document.getElementById('history-modal').classList.add('active');
+        renderHistory();
+    }
+
+    function closeHistory() {
+        document.getElementById('history-modal').classList.remove('active');
+    }
+
+    function saveHistory(category, w, uW, h, uH, total, details) {
+        const now = new Date();
+        const timeStr = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
+        const newRecord = {
+            id: Date.now(),
+            time: timeStr,
+            category: category,
+            sizeStr: `寬 ${w}${uW} × 高 ${h}${uH}`,
+            total: total,
+            details: details
+        };
+
+        historyRecords.unshift(newRecord);
+        if (historyRecords.length > 15) historyRecords.pop(); // 保留 15 筆
+
+        localStorage.setItem('ousheng_records', JSON.stringify(historyRecords));
+    }
+
+    function loadHistory() {
+        const saved = localStorage.getItem('ousheng_records');
+        if (saved) historyRecords = JSON.parse(saved);
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+
+        if (historyRecords.length === 0) {
+            list.innerHTML = '<div class="history-empty">目前還沒有任何計價紀錄喔！</div>';
+            return;
+        }
+
+        historyRecords.forEach(record => {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            
+            const cleanDetails = record.details.replace(/<span class="section-title">/g, '').replace(/<\/span>/g, '');
+
+            item.innerHTML = `
+                <div class="history-header">
+                    <div>
+                        <div class="history-category">${record.category}</div>
+                        <div class="history-time">${record.time}</div>
+                    </div>
+                    <div class="history-total">NT$ ${fmt(record.total)}</div>
+                </div>
+                <div class="history-size">${record.sizeStr}</div>
+                <button class="history-details-btn" onclick="toggleDetails(${record.id})">👀 查看詳細算式</button>
+                <div class="history-details-content" id="details-${record.id}">${cleanDetails}</div>
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    function toggleDetails(id) {
+        const detailDiv = document.getElementById(`details-${id}`);
+        detailDiv.style.display = (detailDiv.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function clearHistory() {
+        if (confirm("確定要清空所有的歷史紀錄嗎？")) {
+            historyRecords = [];
+            localStorage.removeItem('ousheng_records');
+            renderHistory();
+        }
+    }
 </script>
 
 </body>
